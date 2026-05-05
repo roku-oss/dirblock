@@ -118,10 +118,13 @@ Basic example:
 notify = true
 
 [profiles]
-"remote_ssh" = [
+"terminal" = [
     "/usr/bin/bash",
     "/usr/bin/tmux",
     "/usr/sbin/sshd",
+    "/usr/lib/systemd/systemd",
+    "/usr/libexec/gnome-terminal-server",
+    "/usr/bin/kitty",
 ]
 
 [watched]
@@ -130,7 +133,7 @@ notify = true
     "/usr/bin/ssh-agent",
     "/usr/bin/git",
     "/usr/bin/cat;dirblock",
-    "/usr/bin/cat;remote_ssh",
+    "/usr/bin/cat;terminal",
 ]
 ```
 

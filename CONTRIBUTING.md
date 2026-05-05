@@ -88,16 +88,18 @@ Config shape:
 notify = true
 
 [profiles]
-"remote_ssh" = [
+"terminal" = [
     "/usr/bin/bash",
     "/usr/sbin/sshd",
+    "/usr/lib/systemd/systemd",
+    "/usr/libexec/gnome-terminal-server",
 ]
 
 [watched]
 "~/.ssh" = [
     "/usr/bin/ssh",
     "/usr/bin/cat;dirblock",
-    "/usr/bin/cat;remote_ssh",
+    "/usr/bin/cat;terminal",
 ]
 ```
 
@@ -105,7 +107,7 @@ Allow rules:
 - `"/usr/bin/ssh"`: exact executable path.
 - `"~/.local/share/claude/versions/"`: executable path prefix.
 - `"claude:~/.bun/bin/bun"`: path match plus cmdline substring.
-- `"/usr/bin/cat;remote_ssh"`: path match plus ancestry profile.
+- `"/usr/bin/cat;terminal"`: path match plus ancestry profile.
 - `"filter:/path;profile"`: path, cmdline filter, and ancestry profile.
 
 Profile rules:
@@ -217,7 +219,7 @@ Watch(
 - `value`: emit this exact allowlist value, such as an exact executable, a prefix ending in `/`, a cmdline-filtered value like `claude:~/.bun/bin/bun`, or a profiled value like `/usr/bin/cat;dirblock`.
 - `command`: discover an executable by command name only after checking `standard_paths`. If discovery falls back to `PATH`, the generator emits an active entry with a warning comment and prints a CLI warning.
 - `standard_paths`: trusted absolute paths to check before using `PATH`. Put distro/package-manager locations here, such as `/usr/share/cursor/cursor` before `/usr/bin/cursor`.
-- `suffix`: append text to the resolved path, mainly for ancestry profile suffixes such as `;dirblock` or `;remote_ssh`.
+- `suffix`: append text to the resolved path, mainly for ancestry profile suffixes such as `;dirblock` or `;terminal`.
 - `filter`: prepend a cmdline filter to the resolved path. Prefer spelling runtime filters directly in `value` unless the same command-based path resolution is also needed.
 - `comment`: inline TOML comment explaining why the entry exists.
 - `missing_comment`: inline comment for commented-out entries when neither `standard_paths` nor `PATH` finds the command. The default is `not found`.

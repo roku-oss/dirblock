@@ -11,7 +11,7 @@ This document is for coding assistants updating `config/dirblock.toml` after a u
 - If `which` finds a binary, use `readlink -f "$(which <binary>)"` and add the resolved real executable path, not the symlink.
 - If a common executable is not found with `which`, leave it commented out with a short `# not found` note.
 - Do not add unprofiled general-purpose readers/editors/interpreters (`cat`, `less`, `vim`, `nvim`, `python`, `node`, `bun`) to sensitive directories.
-- For general-purpose tools, use `;dirblock`, `;remote_ssh`, another explicit ancestry profile, or a narrow cmdline filter where appropriate.
+- For general-purpose tools, use `;dirblock`, `;terminal`, another explicit ancestry profile, or a narrow cmdline filter where appropriate.
 - Missing project-specific exact paths should be removed unless the user explicitly wants to keep a commented example.
 
 ## Config file location
@@ -205,14 +205,16 @@ Ancestry profiles let a config allow a general-purpose binary only from a truste
 
 ```toml
 [profiles]
-"remote_ssh" = [
+"terminal" = [
     "/usr/bin/bash",
     "/usr/sbin/sshd",
+    "/usr/lib/systemd/systemd",
+    "/usr/libexec/gnome-terminal-server",
 ]
 
 [watched]
 "~/.ssh" = [
-    "/usr/bin/cat;remote_ssh",
+    "/usr/bin/cat;terminal",
 ]
 ```
 
@@ -239,25 +241,31 @@ Use this built-in profile for local interactive readers/editors:
 
 Only add entries for tools that are installed and that the user explicitly wants to use for that directory.
 
-### Generating a `remote_ssh` profile
+### Updating the `terminal` profile
 
-If the user wants to read or edit protected files from an SSH login shell, create a separate `remote_ssh` profile. The safest source is dirblock's ancestry diagnostics: first try a profiled command from the remote shell, read the `observed ancestry for candidate profile` log, and convert it to a named profile.
+The `terminal` profile is for interactive terminal ancestries that the user trusts to run profiled readers/editors such as `cat`, `less`, `vim`, and `nvim`. It may include SSH login parents, tmux, and local terminal emulators such as GNOME Terminal or kitty. The safest source is dirblock's ancestry diagnostics: first try a profiled command from the terminal, read the `observed ancestry for candidate profile` log, and add only the trusted ancestors to `terminal`.
 
-Typical SSH login profile:
+Typical terminal profile:
 
 ```toml
 [profiles]
-"remote_ssh" = [
+"terminal" = [
     "/usr/bin/bash",
+    "/usr/bin/tmux",
     "/usr/sbin/sshd",
+    "/usr/lib/systemd/systemd",
+    "/usr/libexec/gnome-terminal-server",
+    "/usr/bin/kitty",
 ]
 ```
 
-Resolve both paths on the target system:
+Resolve paths on the target system:
 
 ```bash
 readlink -f "$(which bash)"
 readlink -f "$(command -v sshd || printf '%s\n' /usr/sbin/sshd)"
+readlink -f "$(test -e /usr/lib/systemd/systemd && printf '%s\n' /usr/lib/systemd/systemd || printf '%s\n' /lib/systemd/systemd)"
+readlink -f "$(command -v gnome-terminal-server || printf '%s\n' /usr/libexec/gnome-terminal-server)"
 ```
 
 If the user's shell is not bash, use the actual login shell path:
@@ -271,13 +279,13 @@ Then add parallel rules for the protected directory:
 ```toml
 "~/.ssh" = [
     "/usr/bin/cat;dirblock",
-    "/usr/bin/cat;remote_ssh",
+    "/usr/bin/cat;terminal",
     "/usr/bin/less;dirblock",
-    "/usr/bin/less;remote_ssh",
+    "/usr/bin/less;terminal",
 ]
 ```
 
-Do not merge local tmux and remote SSH into one broad profile unless the user explicitly wants those trust domains combined.
+Keep `terminal` limited to interactive terminal ancestors. If a separate trust domain appears, such as CI, build services, or container entrypoints, create a separate named profile instead of broadening `terminal`.
 
 ### Discovering custom installation paths
 
@@ -443,9 +451,13 @@ These are starting points based on common distro layouts. **Do not copy these pa
 #### ~/.ssh
 ```toml
 [profiles]
-"remote_ssh" = [
+"terminal" = [
     "/usr/bin/bash",
+    "/usr/bin/tmux",
     "/usr/sbin/sshd",
+    "/usr/lib/systemd/systemd",
+    "/usr/libexec/gnome-terminal-server",
+    "/usr/bin/kitty",
 ]
 
 "~/.ssh" = [
@@ -462,19 +474,19 @@ These are starting points based on common distro layouts. **Do not copy these pa
     "/usr/sbin/sshd",  # required if this machine accepts incoming SSH (reads authorized_keys)
     # "/usr/bin/mosh",  # not found
     "/usr/bin/cat;dirblock",
-    "/usr/bin/cat;remote_ssh",
+    "/usr/bin/cat;terminal",
     "/usr/bin/less;dirblock",
-    "/usr/bin/less;remote_ssh",
+    "/usr/bin/less;terminal",
     # "/usr/bin/vim;dirblock",       # not found or not requested
-    # "/usr/bin/vim;remote_ssh",     # not found or not requested
+    # "/usr/bin/vim;terminal",       # not found or not requested
     # "/usr/bin/nvim;dirblock",      # not found or not requested
-    # "/usr/bin/nvim;remote_ssh",    # not found or not requested
+    # "/usr/bin/nvim;terminal",      # not found or not requested
 ]
 ```
 
 Note: `sshd` children that read `authorized_keys` run as root (UID 0). dirblock must have `CAP_SYS_PTRACE` (in addition to `CAP_SYS_ADMIN`) to resolve their exe path via `/proc/<pid>/exe`. Without it, sshd shows as an empty exe name and is denied. See README — the required setcap command is `cap_sys_admin,cap_sys_ptrace+ep`.
 
-Do not add unprofiled `cat`, `less`, `vim`, or `nvim` to `~/.ssh`. These are general-purpose exfiltration tools; constrain them with `;dirblock`, `;remote_ssh`, or another explicit profile.
+Do not add unprofiled `cat`, `less`, `vim`, or `nvim` to `~/.ssh`. These are general-purpose exfiltration tools; constrain them with `;dirblock`, `;terminal`, or another explicit profile.
 
 #### ~/.gnupg
 ```toml
@@ -709,7 +721,7 @@ Expands to:
 - Be careful with watches that contain their own executable, such as some `~/.opencode` and `~/.cargo` installs. The parent shell can be the process opening the executable before `execve`, so an allow for the target binary may not prevent self-blocking.
 - Prefer ancestry-profiled entries for general-purpose file readers and editors (`cat`, `less`, `vim`, `nvim`, `python`, `node`, `bun`) instead of unprofiled allows.
 - Use the generated built-in `dirblock` profile for local trusted shell/tmux access. Do not define `[profiles].dirblock` in TOML unless the user explicitly wants to override the generated profile.
-- Generate separate profiles for separate trust domains, such as `remote_ssh`, instead of broadening one profile to include every possible parent process.
+- Generate separate profiles for separate trust domains, such as CI or service wrappers, instead of broadening `terminal` to include every possible parent process.
 - For `~/.ssh`, good interactive defaults are profiled `cat` and `less`; add profiled `vim`/`nvim` only if the user wants to edit SSH config or known_hosts directly.
 - When adding a new watched directory, suggest running `--dry-run` first to discover all legitimate accessors before switching to enforce mode.
 - If the user reports a tool being blocked, check `/proc/<pid>/exe` for that tool's process to get the exact path to add.

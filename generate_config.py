@@ -74,19 +74,29 @@ HOST_HEADER = """# dirblock configuration
 
 # [profiles]
 # Profile entries are executable paths or prefix directories only. They are not recursive.
-# "desktop_shell" = [
-#     "/usr/lib/systemd/systemd",
-#     "/usr/bin/kitty",
-#     "/bin/bash",
-# ]
+# "terminal" is for interactive terminal ancestries trusted to run profiled
+# readers/editors. The built-in "dirblock" profile is generated at runtime
+# from the daemon's own launch ancestry and should not be defined here.
 
 [profiles]
-\"remote_ssh\" = [
+\"terminal\" = [
     \"/bin/bash\",
     \"/usr/bin/bash\",
     \"/usr/bin/tmux\",
     \"/usr/sbin/sshd\",
     \"/usr/bin/sshd\",
+    \"/usr/lib/systemd/systemd\",
+    \"/lib/systemd/systemd\",
+    \"/usr/libexec/gnome-terminal-server\",
+    \"/usr/bin/gnome-terminal-server\",
+    \"/usr/bin/kitty\",
+    \"/usr/bin/konsole\",
+    \"/usr/bin/alacritty\",
+    \"/usr/bin/wezterm-gui\",
+    \"/usr/bin/xfce4-terminal\",
+    \"/usr/bin/tilix\",
+    \"/usr/bin/pwsh\",
+    \"/usr/local/bin/pwsh\",
 ]
 
 [general]
@@ -115,19 +125,29 @@ DEFAULT_HEADER = """# dirblock default configuration
 
 # [profiles]
 # Profile entries are executable paths or prefix directories only. They are not recursive.
-# "desktop_shell" = [
-#     "/usr/lib/systemd/systemd",
-#     "/usr/bin/kitty",
-#     "/bin/bash",
-# ]
+# "terminal" is for interactive terminal ancestries trusted to run profiled
+# readers/editors. The built-in "dirblock" profile is generated at runtime
+# from the daemon's own launch ancestry and should not be defined here.
 
 [profiles]
-"remote_ssh" = [
+"terminal" = [
     "/bin/bash",
     "/usr/bin/bash",
     "/usr/bin/tmux",
     "/usr/sbin/sshd",
     "/usr/bin/sshd",
+    "/usr/lib/systemd/systemd",
+    "/lib/systemd/systemd",
+    "/usr/libexec/gnome-terminal-server",
+    "/usr/bin/gnome-terminal-server",
+    "/usr/bin/kitty",
+    "/usr/bin/konsole",
+    "/usr/bin/alacritty",
+    "/usr/bin/wezterm-gui",
+    "/usr/bin/xfce4-terminal",
+    "/usr/bin/tilix",
+    "/usr/bin/pwsh",
+    "/usr/local/bin/pwsh",
 ]
 
 [general]
@@ -186,13 +206,13 @@ COMMON_WATCHES: tuple[Watch, ...] = (
             Entry(value="/usr/local/share/git-core/git-remote-http"),
             Entry(value="/usr/local/share/git-core/git-remote-https"),
             Entry(command="cat", standard_paths=("/usr/bin/cat",), suffix=";dirblock"),
-            Entry(command="cat", standard_paths=("/usr/bin/cat",), suffix=";remote_ssh"),
+            Entry(command="cat", standard_paths=("/usr/bin/cat",), suffix=";terminal"),
             Entry(command="less", standard_paths=("/usr/bin/less",), suffix=";dirblock"),
-            Entry(command="less", standard_paths=("/usr/bin/less",), suffix=";remote_ssh"),
+            Entry(command="less", standard_paths=("/usr/bin/less",), suffix=";terminal"),
             Entry(command="vim", standard_paths=("/usr/bin/vim",), suffix=";dirblock"),
-            Entry(command="vim", standard_paths=("/usr/bin/vim",), suffix=";remote_ssh"),
+            Entry(command="vim", standard_paths=("/usr/bin/vim",), suffix=";terminal"),
             Entry(command="nvim", standard_paths=("/usr/bin/nvim",), suffix=";dirblock"),
-            Entry(command="nvim", standard_paths=("/usr/bin/nvim",), suffix=";remote_ssh"),
+            Entry(command="nvim", standard_paths=("/usr/bin/nvim",), suffix=";terminal"),
         ),
     ),
     Watch(
@@ -333,6 +353,9 @@ LOCAL_WATCHES: tuple[Watch, ...] = (
             Entry(value="/opt/cursor/"),
             Entry(value="~/.local/bin/cursor"),
             Entry(value="~/.cursor-server/", comment="Cursor remote server, hash/versioned"),
+            Entry(value="run-jedi-language-server.py:/usr/bin/python3.8", comment="Cursor Python extension Jedi language server"),
+            Entry(value="/usr/share/cursor/resources/app/node_modules/@vscode/ripgrep/bin/rg", comment="Cursor bundled ripgrep"),
+            Entry(value="parseCompilerArgs.sh:/usr/bin/bash", comment="VS Code Makefile Tools extension parser"),
         ),
     ),
     Watch(

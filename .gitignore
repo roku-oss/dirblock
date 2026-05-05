@@ -19,3 +19,6 @@ dirblock
 logs/
 *.log
 
+# Generator backups
+config/*_orig*.toml
+

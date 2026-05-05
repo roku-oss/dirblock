@@ -150,7 +150,7 @@ Capture dry-run logs during representative builds:
 sudo -iu gitlab-runner journalctl --user -u dirblock.service
 ```
 
-Review `DRY-RUN DENY` lines before switching to enforce mode. CI jobs often spawn tools from runner services, shell executors, build wrappers, or container entrypoints rather than from an interactive terminal. If ancestry-profiled rules are needed, create a CI-specific profile such as `ci_runner` instead of reusing `dirblock` or `remote_ssh` broadly.
+Review `DRY-RUN DENY` lines before switching to enforce mode. CI jobs often spawn tools from runner services, shell executors, build wrappers, or container entrypoints rather than from an interactive terminal. If ancestry-profiled rules are needed, create a CI-specific profile such as `ci_runner` instead of reusing `dirblock` or `terminal` broadly.
 
 Do not enable enforce mode blindly across arbitrary jobs. First confirm:
 - legitimate credential readers are allowlisted;
@@ -333,7 +333,7 @@ Do not add broad unprofiled readers, editors, shells, or runtimes to sensitive d
 
 ```toml
 "/usr/bin/cat;dirblock"
-"/usr/bin/less;remote_ssh"
+"/usr/bin/less;terminal"
 "claude:~/.bun/bin/bun"
 ```
 
@@ -394,4 +394,4 @@ Unexpected denials:
 journalctl --user -u dirblock.service --since today
 ```
 
-If an ancestry-profiled rule is denied, dirblock logs an observed candidate profile. Use that output to decide whether to add a separate named profile, such as `remote_ssh`, rather than broadening an unrelated profile.
+If an ancestry-profiled rule is denied, dirblock logs an observed candidate profile. Use that output to decide whether to update `terminal` for trusted interactive sessions or add a separate named profile, such as `ci_runner`, rather than broadening an unrelated profile.
