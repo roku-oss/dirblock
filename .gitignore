@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+
+.env
+.env.*
+!.env.example
+
+# Local editor and coding-agent state
+.cursor/
+.claude/
+.vscode/
+.codex/
+.gemini/
+.opencode/
+.aider*
+
+# Runtime/build artifacts
+dirblock
+logs/
+*.log
+
