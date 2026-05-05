@@ -23,7 +23,7 @@ Requirements:
 ### Build the binary:
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/roku-oss/dirblock
 cd dirblock
 make
 ```
