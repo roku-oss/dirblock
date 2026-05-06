@@ -20,7 +20,17 @@ Requirements:
 - `make`
 - Python 3.11+ for the config generator
 
-### Build the binary:
+### One-line source install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/roku-oss/dirblock/main/install.sh | bash
+```
+
+The installer builds from source, generates a host-specific config, installs to `~/.local/bin/dirblock`, and asks before running the required `sudo setcap` command. If run from a checked-out dirblock repo, it uses that checkout. If run from a curl pipe, it clones or reuses `./dirblock` so the generated config remains available for later tuning. It finishes with a dry-run command; review `DENIED` / `DRY-RUN DENY` messages and fine-tune policy before running in enforcement mode.
+
+### Manual source install
+
+Build the binary:
 
 ```bash
 git clone https://github.com/roku-oss/dirblock
@@ -173,6 +183,7 @@ Limitations:
 - Cmdline filters are useful but not a hard security boundary.
 - Ancestry profiles check current ancestry at access time, not historical launch provenance.
 - The daemon sees all opens on marked mounts and then filters by watched directory path.
+- dirblock does not prove that an allowlisted executable is authentic. It pairs well with system integrity controls such as package-manager ownership, AppArmor or SELinux policy, IMA appraisal, fs-verity, or secure boot. Given the OS reports a process as `/usr/bin/ssh`, dirblock decides whether `/usr/bin/ssh` is expected to read a protected directory.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for architecture, function responsibilities, and development workflow.
 

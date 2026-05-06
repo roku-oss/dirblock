@@ -241,7 +241,7 @@ make
 
 Before opening or updating a merge request:
 1. Run `make clean && make`.
-2. Run `bash -n test_dirblock_policy.sh`.
+2. Run `bash -n install.sh` and `bash -n test_dirblock_policy.sh`.
 3. If dirblock is installed and running, run relevant smoke tests.
 4. Review `README.md`, `CONTRIBUTING.md`, `ADMIN_GUIDE.md`, `update_config.md`, and `test_results.md` for consistency.
 5. Check `git diff --check`.

@@ -189,6 +189,7 @@ COMMON_WATCHES: tuple[Watch, ...] = (
             Entry(command="sshd", standard_paths=("/usr/sbin/sshd", "/usr/bin/sshd"), comment="required for incoming SSH authorized_keys reads"),
             Entry(command="ssh", standard_paths=("/usr/bin/ssh",)),
             Entry(command="ssh-agent", standard_paths=("/usr/bin/ssh-agent",)),
+            Entry(command="gnome-keyring-daemon", standard_paths=("/usr/bin/gnome-keyring-daemon",), comment="GNOME Keyring SSH/secrets component"),
             Entry(command="ssh-add", standard_paths=("/usr/bin/ssh-add",)),
             Entry(command="ssh-keygen", standard_paths=("/usr/bin/ssh-keygen",)),
             Entry(command="scp", standard_paths=("/usr/bin/scp",)),
